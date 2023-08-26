@@ -1,0 +1,155 @@
+swagger: '2.0'
+info:
+  title: Coin API
+  description: An API to manage cryptocurrencies
+  version: v1
+host: localhost:5050
+schemes:
+- http
+basePath: /api
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /coins/:
+    get:
+      operationId: coins_list
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Coin'
+      tags:
+      - coins
+    post:
+      operationId: coins_create
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Coin'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/Coin'
+      tags:
+      - coins
+    parameters: []
+  /coins/close_values/:
+    get:
+      operationId: coins_close_values
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Coin'
+      tags:
+      - coins
+    parameters: []
+  /coins/list_names_symbols/:
+    get:
+      operationId: coins_list_names_symbols
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Coin'
+      tags:
+      - coins
+    parameters: []
+  /coins/max_profit/:
+    get:
+      operationId: coins_max_profit
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Coin'
+      tags:
+      - coins
+    parameters: []
+definitions:
+  Coin:
+    required:
+    - name
+    - date
+    type: object
+    properties:
+      id:
+        title: Id
+        type: string
+        format: uuid
+        readOnly: true
+      name:
+        title: Name
+        type: string
+        maxLength: 255
+        minLength: 1
+      symbol:
+        title: Symbol
+        type: string
+        enum:
+        - AAVE
+        - BNB
+        - BTC
+        - ADA
+        - LINK
+        - ATOM
+        - CRO
+        - DOGE
+        - EOS
+        - ETH
+        - MIOTA
+        - LTC
+        - XMR
+        - XEM
+        - DOT
+        - SOL
+        - XLM
+        - USDT
+        - TRX
+        - USDC
+        - UNI
+        - WBTC
+        - XRP
+        default: AAVE
+      date:
+        title: Date
+        type: string
+        format: date-time
+      high:
+        title: High
+        type: string
+        format: decimal
+      low:
+        title: Low
+        type: string
+        format: decimal
+      open:
+        title: Open
+        type: string
+        format: decimal
+      close:
+        title: Close
+        type: string
+        format: decimal
