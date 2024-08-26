@@ -1,9 +1,9 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from api.infrastructure.views import CoinViewSet
+from . import views
 
 router = DefaultRouter()
-router.register(r"coins", CoinViewSet)
+router.register(r'gameplays', views.GameplayViewSet)
 
 app_name = "api"
 

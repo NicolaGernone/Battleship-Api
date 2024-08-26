@@ -1,25 +1,12 @@
-class CoinNotFound(Exception):
+# custom_exceptions.py
+class GameAlreadyStarted(Exception):
     pass
 
-
-class CoinNameSymbolException(Exception):
+class GameNotStarted(Exception):
     pass
 
-
-class CoinCloseValuesException(Exception):
+class InvalidShipPosition(Exception):
     pass
 
-
-class CoinMaxProfitException(Exception):
-    pass
-
-
-class DateFormatException(Exception):
-    pass
-
-
-class BuySellException(Exception):
-    pass
-
-class CoinSymbolException(Exception):
+class InvalidAttackCoordinates(Exception):
     pass

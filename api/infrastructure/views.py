@@ -1,80 +1,49 @@
-from rest_framework import status, viewsets
+# views.py in battlefield_app
+
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from .models import GameBoard, Gameplay, Player
+from .serializers import GameBoardSerializer, GameplaySerializer, PlayerSerializer
+from users.models import CustomUser
 
-from api.application.services import CoinService
-from api.domain.exceptions import CoinMaxProfitException, CoinNameSymbolException
-from api.domain.serializers import CoinSerializer
+class GameplayViewSet(viewsets.ModelViewSet):
+    queryset = Gameplay.objects.all()
+    serializer_class = GameplaySerializer
 
-from .models import Coin
-
-
-class CoinViewSet(
-    viewsets.GenericViewSet,
-    viewsets.mixins.CreateModelMixin,
-    viewsets.mixins.ListModelMixin,
-):
-    queryset = Coin.objects.all()
-    serializer_class = CoinSerializer
-
-    @action(detail=False, methods=["get"])
-    def close_values(self, request):
-        data = CoinService.CoinClose(
-            symbol=request.GET.get("symbol"), date=request.GET.get("date")
-        )
-
-        if not data.symbol or not data.date:
-            return Response(
-                {"error": "Both symbol and date are required"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        
-        if not CoinService.check_symbol(symbol=data.symbol):
-            return Response(
-                {"error": "Invalid Symbol"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        close_values = CoinService.get_coin_close_values(data=data)
-
-        return Response(close_values, status=status.HTTP_200_OK)
-
-    @action(detail=False, methods=["get"])
-    def max_profit(self, request):
-        data = CoinService.CoinMaxProfit(
-            symbol=request.GET.get("symbol"),
-            start_date=request.GET.get("start_date"),
-            end_date=request.GET.get("end_date"),
-        )
-
-        if not data.symbol or not data.start_date or not data.end_date:
-            return Response(
-                {"error": "Symbol, start_date, and end_date are required"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        
-        if not CoinService.check_symbol(symbol=data.symbol):
-            return Response(
-                {"error": "Invalid Symbol"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
+    def create(self, request, *args, **kwargs):
         try:
-            max_profit_value = CoinService.get_coin_max_profit(data=data)
-            return Response(max_profit_value, status=status.HTTP_200_OK)
-        except (CoinMaxProfitException, DateFormatException, BuySellException, CoinSymbolException):
-            return Response(
-                {"error": "An error occurred while getting max profit"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+            # Using the inherited create method
+            return super(GameplayViewSet, self).create(request, *args, **kwargs)
+        except serializers.ValidationError as e:
+            return Response({"error": e.detail}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": "An unexpected error occurred"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=False, methods=["get"])
-    def list_names_symbols(self, request):
-        try:
-            names_symbols = CoinService.get_coin_names_symbols()
-            return Response(names_symbols, status=status.HTTP_200_OK)
-        except CoinNameSymbolException as e:
-            return Response(
-                {"error": "An error occurred while listing coin names and symbols"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+    @action(detail=True, methods=['POST'])
+    def join_game(self, request, pk=None):
+        user = request.user
+        gameplay = self.get_object()
+
+        # Check if the game already has two players
+        if gameplay.players.count() >= 2:
+            raise ValidationError("The game already has two players.")
+
+        # Check if the joining user is already a player
+        if gameplay.players.filter(id=user.id).exists():
+            raise ValidationError("You are already a player in this game.")
+
+        Player.objects.create(user=user, gameplay=gameplay, is_automatic=False)
+
+        serializer = GameplaySerializer(gameplay)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['GET'])
+    def attack(self, request, pk=None):
+        x = request.query_params.get('x', None)
+        y = request.query_params.get('y', None)
+        gameplay = self.get_object()
+        board = gameplay.board
+        # Add your attack logic here
+        message = "Hit or Miss based on your logic"
+        return Response({"message": message}, status=status.HTTP_200_OK)
