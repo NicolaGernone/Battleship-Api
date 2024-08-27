@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
 from api.application.gameplay_services import GameplayServices
+from django.contrib.auth.models import User
+from api.application.user_services import UserServices
 from api.domain.entities import CustomUser, GameBoard, Gameplay, Player
 
 from app.settings import LOGGER as lg
@@ -26,9 +28,10 @@ class GameplaySerializer(serializers.ModelSerializer):
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
+        model = User
         fields = ["id", "username", "password"]
 
     def create(self, validated_data):
-        user = CustomUser.objects.create_user(**validated_data)
+        # user = CustomUser.objects.create_user(**validated_data)
+        user = UserServices.create_user(**validated_data)
         return user

@@ -113,36 +113,185 @@ paths:
                 $ref: '#/components/schemas/User'
         404:
           description: User not found
-  /games/:
+
+  /gameplays/:
+    get:
+      summary: List all gameplays
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Gameplay'
+        '401':
+          description: Unauthorized
+          content: {}
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+          content: {}
+
     post:
-      summary: Create a new game
+      summary: Create a new gameplay
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                player1:
-                  type: string
-                player2:
-                  type: string
+              $ref: '#/components/schemas/Gameplay'
       responses:
-        200:
-          description: Game created successfully
-    get:
-      summary: Get the list of games
-      responses:
-        200:
-          description: List of games
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Gameplay'
+        '400':
+          description: Bad Request
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  games:
+                  error:
+                    type: string
+        '404':
+          description: Not Found   
+
+          content: {}
+        '500':
+          description: Internal Server Error
+          content: {}
+
+  /gameplays/{id}/position_ships:
+    post:
+      summary: Position ships for a gameplay
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                player:
+                  type: string
+                  description: The player positioning ships (e.g., "player1")
+                positions:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/PositionVector'
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: The ID of the gameplay
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+                  board:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Game'
+                      type: array
+                      items:
+                        type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+        '403':
+          description: Forbidden
+          content: {}
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal Server Error
+          content: {}
+
+  /gameplays/{id}/attack:
+    get:
+      summary: Attack a position in a gameplay
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: The ID of the gameplay
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttackInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Attack message
+        '201':
+          description: Created (game ended)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Game over message
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '403':
+          description: Forbidden
+          content: {}
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
 components:
   schemas:
     User:
@@ -152,7 +301,7 @@ components:
           type: integer
         username:
           type: string
-    Game:
+    Gameplay:
       type: object
       properties:
         id:
@@ -161,3 +310,15 @@ components:
           type: string
         player2:
           type: string
+    AttackInput:
+      type: object
+      properties:
+        position:
+          type: string
+    PositionVector:
+      type: object
+      properties:
+        x:
+          type: integer
+        y:
+          type: integer

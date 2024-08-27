@@ -1,11 +1,14 @@
 from django.core.exceptions import ValidationError
 from .models import Player
 
+
 def create_real_player(user, gameplay):
     Player.objects.create(user=user, gameplay=gameplay, is_automatic=False)
 
+
 def create_automatic_player(gameplay):
     Player.objects.create(user=None, gameplay=gameplay, is_automatic=True)
+
 
 def join_game(user, gameplay):
     # Check if the game already has two players
@@ -21,7 +24,9 @@ def join_game(user, gameplay):
 
 def check_winner(gameplay):
     for player in gameplay.player_set.all():
-        total_ship_positions = sum(len(positions) for positions in gameplay.board.ship_positions.values())
+        total_ship_positions = sum(
+            len(positions) for positions in gameplay.board.ship_positions.values()
+        )
         if player.hit_count >= total_ship_positions:
             gameplay.is_active = False
             gameplay.winner = player

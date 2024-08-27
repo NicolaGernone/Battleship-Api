@@ -33,7 +33,9 @@ class AttackServices:
 
         # Existing validations and attack logic
         AttackServices.validate_attack_position(gameplay=gameplay, x=x, y=y)
-        hit_or_miss = AttackServices.perform_attack(board=gameplay.board, player=player, x=x, y=y)
+        hit_or_miss = AttackServices.perform_attack(
+            board=gameplay.board, player=player, x=x, y=y
+        )
 
         winner = AttackServices.check_winner(gameplay=gameplay)
         if winner:

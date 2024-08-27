@@ -33,23 +33,30 @@ class BothPlayersPositionedError(Exception):
 class TurnToPositionShipsError(Exception):
     pass
 
+
 class IncompleteBoardError(Exception):
     pass
+
 
 class InvalidDirectionError(Exception):
     pass
 
+
 class InvalidShipError(Exception):
     pass
+
 
 class InvalidBoardCoordinatesError(Exception):
     pass
 
+
 class CoordinatesAlreadyHaveShipError(Exception):
     pass
 
+
 class MaxPlacementAttemptsExceeded(Exception):
     pass
+
 
 class IncompleteShipsPositioningError(Exception):
     pass

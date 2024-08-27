@@ -1,7 +1,10 @@
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login as django_login
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.models import User
 from api.application.attack_services import AttackServices
 from api.application.gameplay_services import GameplayServices
 from api.application.positioning_services import PositioningServices
@@ -27,45 +30,43 @@ from app.settings import LOGGER as lg
 
 
 class CustomUserViewSet(
-    viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin
+    viewsets.GenericViewSet,
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
 ):
-    queryset = CustomUser.objects.all()
+    queryset = User.objects.all()
     serializer_class = CustomUserSerializer
-    permission_classes = []
-    authentication_classes = []
+    permission_classes = [IsAuthenticated]
     
-    def create(self, request, *args, **kwargs) -> Response:
-        try:
-            lg.info(f"Creating user with data: {request.data}")
-            return super(CustomUserViewSet, self).create(request, *args, **kwargs)
-        except Exception as e:
-            return Response(
-                {"error": "An unexpected error occurred"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-    
-    @action(detail=False, methods=['POST'])
-    def login(self, request):
-        lg.info(f"Logging in user with data: {request.data}")
-        username = request.data.get('username')
-        password = request.data.get('password')
-        lg.info(f"Username: {username}, Password: {password}")
+    def get_permissions(self):
+        if self.action in ('create', 'login'):
+            self.permission_classes = []
+        return super().get_permissions()
 
-        # Try to authenticate the user
+    @action(detail=False, methods=["POST"])
+    def login(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+
         user = authenticate(username=username, password=password)
 
         if user:
-            # User exists and is authenticated
             django_login(request, user)
             refresh = RefreshToken.for_user(user)
-            return Response({
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-                'user': CustomUserSerializer(user).data
-            })
+            return Response(
+                {
+                    "refresh_token": str(refresh),
+                    "token": str(refresh.access_token),
+                    "user": CustomUserSerializer(user).data,
+                },
+                status=status.HTTP_200_OK,
+            )
 
-        # User does not exist, return a warning message
-        return Response({'warning': 'User does not exist. Please create a new account.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"warning": "User does not exist. Please create a new account."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
 
 
 class GameplayViewSet(
