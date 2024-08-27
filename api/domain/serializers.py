@@ -3,6 +3,8 @@ from rest_framework import serializers
 from api.application.gameplay_services import GameplayServices
 from api.domain.entities import CustomUser, GameBoard, Gameplay, Player
 
+from app.settings import LOGGER as lg
+
 
 class GameplaySerializer(serializers.ModelSerializer):
     class Meta:

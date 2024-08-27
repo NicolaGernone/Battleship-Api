@@ -40,3 +40,9 @@ run: build migrate db_country_list
 	docker compose up -d
 
 reboot: down run
+
+collectstatic:
+	docker compose run --rm api python manage.py collectstatic
+
+shell:
+	docker compose run --rm api python manage.py shell

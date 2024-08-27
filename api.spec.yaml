@@ -36,6 +36,83 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/User'
+  /users/login/:
+    post:
+      summary: Log in or create a new user
+      description: Logs in an existing user or provides a warning if the user does not exist. Returns authentication tokens if successful.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: exampleuser
+                password:
+                  type: string
+                  example: examplepassword
+      responses:
+        '200':
+          description: Successful authentication and token issuance
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  refresh:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+                  access:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      username:
+                        type: string
+                        example: exampleuser
+                      email:
+                        type: string
+                        example: user@example.com
+                      first_name:
+                        type: string
+                        example: John
+                      last_name:
+                        type: string
+                        example: Doe
+        '404':
+          description: User does not exist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  warning:
+                    type: string
+                    example: User does not exist. Please create a new account.
+  /users/{user_id}:
+    get:
+      summary: Get a user's profile
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        404:
+          description: User not found
   /games/:
     post:
       summary: Create a new game

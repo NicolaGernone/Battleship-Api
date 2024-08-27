@@ -1,7 +1,7 @@
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
+from django.contrib.auth import authenticate
 from api.application.attack_services import AttackServices
 from api.application.gameplay_services import GameplayServices
 from api.application.positioning_services import PositioningServices
@@ -23,17 +23,33 @@ from api.domain.input_data import AttackInput, PositionData, PositionVector
 from api.domain.serializers import CustomUserSerializer, GameplaySerializer
 from api.infrastructure.models import CustomUser, GameBoard, Gameplay, Player
 
+from app.settings import LOGGER as lg
+
 
 class CustomUserViewSet(
-    viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.ListModelMixin
+    viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin
 ):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
+    permission_classes = []
+    authentication_classes = []
+    
+    def create(self, request, *args, **kwargs) -> Response:
+        try:
+            lg.info(f"Creating user with data: {request.data}")
+            return super(CustomUserViewSet, self).create(request, *args, **kwargs)
+        except Exception as e:
+            return Response(
+                {"error": "An unexpected error occurred"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
     
     @action(detail=False, methods=['POST'])
-    def login_or_create(self, request):
+    def login(self, request):
+        lg.info(f"Logging in user with data: {request.data}")
         username = request.data.get('username')
         password = request.data.get('password')
+        lg.info(f"Username: {username}, Password: {password}")
 
         # Try to authenticate the user
         user = authenticate(username=username, password=password)
