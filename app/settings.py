@@ -15,6 +15,8 @@ from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
+from decouple import Config
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -119,3 +121,8 @@ logging.config.dictConfig(LOGGING)
 USE_TZ = False
 
 LOGGER = logging.getLogger(__name__)
+
+config = Config(".env")
+MAX_ATTEMPTS = config("MAX_ATTEMPTS", default=100, cast=int)
+BOARD_WIDTH = config("BOARD_WIDTH", default=10, cast=int)
+BOARD_HEIGHT = config("BOARD_HEIGHT", default=10, cast=int)

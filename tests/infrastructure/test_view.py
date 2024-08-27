@@ -61,26 +61,27 @@ def test_list_names_symbols_valid(api_client):
     response = api_client.get(url)
     assert response.status_code == status.HTTP_200_OK
 
+
 @pytest.mark.django_db
 def test_create_coin_valid(api_client):
-    url = reverse('api:coin-list')
+    url = reverse("api:coin-list")
     data = {
-        'name': 'Bitcoin',
-        'symbol': 'BTC',
-        'date': '2023-08-25T00:00:00Z',
-        'high': '48000.00',
-        'low': '42000.00',
-        'open': '45000.00',
-        'close': '46000.00',
+        "name": "Bitcoin",
+        "symbol": "BTC",
+        "date": "2023-08-25T00:00:00Z",
+        "high": "48000.00",
+        "low": "42000.00",
+        "open": "45000.00",
+        "close": "46000.00",
     }
     response = api_client.post(url, data=data)
     assert response.status_code == status.HTTP_201_CREATED
-    
+
+
 @pytest.mark.django_db
 def test_list_all_coins(api_client):
     CoinFactory.create_batch(5)
-    url = reverse('api:coin-list')
+    url = reverse("api:coin-list")
     response = api_client.get(url)
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()) == 5
-

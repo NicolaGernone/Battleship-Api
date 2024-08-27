@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "Bitcoin Insider"
+name = "Battleship Challange"
 version = "0.1.0"
 description = ""
 authors = ["nicola gernone <nicola.gernone02@gmail.com>"]
@@ -12,6 +12,7 @@ psycopg2-binary = "^2.9.4"
 django-model-utils = "^4.3.1"
 requests = "^2.31.0"
 drf-yasg = "^1.21.7"
+python-decouple = "^3.8"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"

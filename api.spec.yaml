@@ -1,155 +1,86 @@
-swagger: '2.0'
+openapi: 3.0.0
 info:
-  title: Coin API
-  description: An API to manage cryptocurrencies
-  version: v1
-host: localhost:5050
-schemes:
-- http
-basePath: /api
-consumes:
-- application/json
-produces:
-- application/json
+  title: Battleship Game API
+  description: A REST API for managing the gameplay, players, and game state.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5050/api/
 paths:
-  /coins/:
-    get:
-      operationId: coins_list
-      description: ''
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Coin'
-      tags:
-      - coins
+  /users/:
     post:
-      operationId: coins_create
-      description: ''
-      parameters:
-      - name: data
-        in: body
-        required: true
-        schema:
-          $ref: '#/definitions/Coin'
+      summary: Create a new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
       responses:
-        '201':
-          description: ''
-          schema:
-            $ref: '#/definitions/Coin'
-      tags:
-      - coins
-    parameters: []
-  /coins/close_values/:
+        200:
+          description: User created successfully
     get:
-      operationId: coins_close_values
-      description: ''
-      parameters: []
+      summary: Get the list of users
       responses:
-        '200':
-          description: ''
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Coin'
-      tags:
-      - coins
-    parameters: []
-  /coins/list_names_symbols/:
+        200:
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+  /games/:
+    post:
+      summary: Create a new game
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                player1:
+                  type: string
+                player2:
+                  type: string
+      responses:
+        200:
+          description: Game created successfully
     get:
-      operationId: coins_list_names_symbols
-      description: ''
-      parameters: []
+      summary: Get the list of games
       responses:
-        '200':
-          description: ''
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Coin'
-      tags:
-      - coins
-    parameters: []
-  /coins/max_profit/:
-    get:
-      operationId: coins_max_profit
-      description: ''
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Coin'
-      tags:
-      - coins
-    parameters: []
-definitions:
-  Coin:
-    required:
-    - name
-    - date
-    type: object
-    properties:
-      id:
-        title: Id
-        type: string
-        format: uuid
-        readOnly: true
-      name:
-        title: Name
-        type: string
-        maxLength: 255
-        minLength: 1
-      symbol:
-        title: Symbol
-        type: string
-        enum:
-        - AAVE
-        - BNB
-        - BTC
-        - ADA
-        - LINK
-        - ATOM
-        - CRO
-        - DOGE
-        - EOS
-        - ETH
-        - MIOTA
-        - LTC
-        - XMR
-        - XEM
-        - DOT
-        - SOL
-        - XLM
-        - USDT
-        - TRX
-        - USDC
-        - UNI
-        - WBTC
-        - XRP
-        default: AAVE
-      date:
-        title: Date
-        type: string
-        format: date-time
-      high:
-        title: High
-        type: string
-        format: decimal
-      low:
-        title: Low
-        type: string
-        format: decimal
-      open:
-        title: Open
-        type: string
-        format: decimal
-      close:
-        title: Close
-        type: string
-        format: decimal
+        200:
+          description: List of games
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  games:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Game'
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+    Game:
+      type: object
+      properties:
+        id:
+          type: integer
+        player1:
+          type: string
+        player2:
+          type: string
