@@ -1,25 +1,9 @@
 # models.py in battlefield_app
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
-
-
-class CustomUser(AbstractUser):
-    groups = models.ManyToManyField(
-        Group,
-        related_name="customuser_set",
-        blank=True,
-        help_text="The groups this user belongs to.",
-        related_query_name="customuser",
-    )
-    user_permissions = models.ManyToManyField(
-        Permission,
-        related_name="customuser_set",
-        blank=True,
-        help_text="Specific permissions for this user.",
-        related_query_name="customuser",
-    )
 
 
 class Gameplay(models.Model):
@@ -53,8 +37,20 @@ class GameBoard(models.Model):
 
 
 class Player(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    gameplay = models.ForeignKey(Gameplay, on_delete=models.CASCADE)
-    board = models.OneToOneField(GameBoard, on_delete=models.CASCADE)
+    username = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    gameplay = models.ForeignKey(
+        "Gameplay",
+        related_name="gameplay",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+    board = models.OneToOneField(
+        "GameBoard",
+        related_name="board",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
     is_automatic = models.BooleanField(default=False)
     hit_count = models.PositiveIntegerField(default=0)

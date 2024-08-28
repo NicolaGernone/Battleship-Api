@@ -1,3 +1,3 @@
-from api.domain.entities import GameBoard, Gameplay, Player, CustomUser
+from api.domain.entities import GameBoard, Gameplay, Player
 
-__all__ = ["CustomUser", "Gameplay", "Player", "GameBoard"]
+__all__ = ["Gameplay", "Player", "GameBoard"]

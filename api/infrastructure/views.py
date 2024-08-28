@@ -23,8 +23,8 @@ from api.domain.exceptions import (
     TurnToPositionShipsError,
 )
 from api.domain.input_data import AttackInput, PositionData, PositionVector
-from api.domain.serializers import CustomUserSerializer, GameplaySerializer
-from api.infrastructure.models import CustomUser, GameBoard, Gameplay, Player
+from api.domain.serializers import UserSerializer, GameplaySerializer, PlayerSerializer
+from api.infrastructure.models import GameBoard, Gameplay, Player
 
 from app.settings import LOGGER as lg
 
@@ -32,15 +32,14 @@ from app.settings import LOGGER as lg
 class CustomUserViewSet(
     viewsets.GenericViewSet,
     mixins.CreateModelMixin,
-    mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
 ):
     queryset = User.objects.all()
-    serializer_class = CustomUserSerializer
+    serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def get_permissions(self):
-        if self.action in ('create', 'login'):
+        if self.action in ("create", "login"):
             self.permission_classes = []
         return super().get_permissions()
 
@@ -58,7 +57,7 @@ class CustomUserViewSet(
                 {
                     "refresh_token": str(refresh),
                     "token": str(refresh.access_token),
-                    "user": CustomUserSerializer(user).data,
+                    "user": UserSerializer(user).data,
                 },
                 status=status.HTTP_200_OK,
             )
@@ -73,19 +72,22 @@ class GameplayViewSet(
     viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.ListModelMixin
 ):
     queryset = Gameplay.objects.all()
-    serializer_class = GameplaySerializer
+    serializer_classes = GameplaySerializer
+    permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs) -> Response:
         try:
-            return super(GameplayViewSet, self).create(request, *args, **kwargs)
-        except (
-            PlayerAlreadyJoinedError,
-            InvalidPlayerError,
-            CustomUser.DoesNotExist,
-        ) as e:
+            player_1 = GameplayServices.get_or_create_player(
+                username=request.data.get("player1"), gameplay=None, is_automatic=False
+            )
+            player_1 = GameplayServices.get_or_create_player(
+                username=request.data.get("player2"), gameplay=None, is_automatic=True
+            )
+            return super().create(request, *args, **kwargs)
+        except InvalidPlayerError as e:
             status_code = status.HTTP_400_BAD_REQUEST
-            if isinstance(e, CustomUser.DoesNotExist):
-                status_code = status.HTTP_404_NOT_FOUND  # Not Found
+            if isinstance(e, User.DoesNotExist):
+                status_code = status.HTTP_404_NOT_FOUND
             return Response({"error": str(e)}, status=status_code)
         except Exception as e:
             return Response(
